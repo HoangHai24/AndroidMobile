@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- OTT Theme Colors -->
+    <color name="ott_background">#0D0D0D</color>
+    <color name="ott_surface">#1A1A1A</color>
+    <color name="ott_primary">#E50914</color>
+    <color name="ott_primary_variant">#B20610</color>
+    <color name="ott_text_primary">#FFFFFF</color>
+    <color name="ott_text_secondary">#AAAAAA</color>
+    <color name="ott_item_bg">#252525</color>
+    <color name="ott_divider">#333333</color>
+    <color name="ott_overlay">#80000000</color>
+    <color name="ott_bottom_nav_bg">#121212</color>
+    <color name="ott_drawer_bg">#0D0D0D</color>
+    <color name="ott_category_title">#FFFFFF</color>
+    <color name="ott_shimmer_base">#1E1E1E</color>
+    <color name="ott_shimmer_highlight">#2E2E2E</color>
+</resources>

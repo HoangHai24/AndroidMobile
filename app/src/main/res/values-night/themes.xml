@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.DemoOttMobile" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ott_primary</item>
+        <item name="android:statusBarColor">@color/ott_background</item>
+        <item name="android:windowBackground">@color/ott_background</item>
+    </style>
+</resources>

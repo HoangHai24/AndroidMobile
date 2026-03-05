@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="grid_spacing">8dp</dimen>
+    <dimen name="item_square_size">70dp</dimen>
+    <dimen name="item_rectangle_width">162dp</dimen>
+    <dimen name="item_rectangle_height">70dp</dimen>
+    <dimen name="horizontal_item_margin">4dp</dimen>
+</resources>
