@@ -20,6 +20,12 @@ import com.example.demoottmobile.presentation.common.toast.GlobalToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+// ═══════════════════════════════════════════════════════
+// JAVA TƯƠNG ĐƯƠNG (giống HomeFragment - xem HomeFragment.kt)
+// Điểm khác: dùng GridLayoutManager (lưới 4 cột) thay vì LinearLayoutManager
+// và thêm GridSpacingItemDecoration để tạo khoảng cách đều giữa các item.
+// ═══════════════════════════════════════════════════════
+
 @AndroidEntryPoint
 class ChannelFragment : Fragment() {
 
@@ -28,6 +34,8 @@ class ChannelFragment : Fragment() {
 
     private val viewModel: ChannelViewModel by viewModels()
 
+    // Lambda ngắn gọn: { item -> navigateToPlayer(item) }
+    // Java: item -> navigateToPlayer(item)
     private val channelAdapter by lazy {
         ChannelGridAdapter { item -> navigateToPlayer(item) }
     }
@@ -49,10 +57,14 @@ class ChannelFragment : Fragment() {
     private fun setupRecyclerView() {
         // 4 columns, spacing 8dp
         val spanCount = 4
+        // "resources.getDimensionPixelSize(...)" → lấy giá trị dp đổi ra pixel
         val spacing = resources.getDimensionPixelSize(com.example.demoottmobile.R.dimen.grid_spacing)
         binding.rvChannels.apply {
             adapter = channelAdapter
+            // GridLayoutManager: hiển thị theo lưới, spanCount = số cột
+            // Java: new GridLayoutManager(requireContext(), spanCount)
             layoutManager = GridLayoutManager(requireContext(), spanCount)
+            // ItemDecoration: thêm khoảng cách giữa các item trong lưới
             addItemDecoration(GridSpacingItemDecoration(spanCount, spacing, true))
             setHasFixedSize(true)
         }
@@ -63,9 +75,7 @@ class ChannelFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.channelsState.collect { state ->
                     when (state) {
-                        is UiState.Loading -> {
-                            activity?.let { GlobalLoading.show(it) }
-                        }
+                        is UiState.Loading -> activity?.let { GlobalLoading.show(it) }
                         is UiState.Success -> {
                             activity?.let { GlobalLoading.hide(it) }
                             channelAdapter.submitList(state.data)
@@ -90,6 +100,6 @@ class ChannelFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // null binding tránh memory leak
     }
 }

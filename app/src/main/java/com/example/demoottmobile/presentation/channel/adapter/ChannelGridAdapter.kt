@@ -12,6 +12,12 @@ import com.example.demoottmobile.domain.model.MediaItem
 /**
  * 4-column grid adapter for Channel screen.
  * Item height = item width (square). Width is determined by GridLayoutManager.
+ *
+ * [Java tương đương]
+ * public class ChannelGridAdapter extends ListAdapter<MediaItem, ChannelGridAdapter.ChannelViewHolder> {
+ *     interface OnClickListener { void onClick(MediaItem item); }
+ *     public ChannelGridAdapter(OnClickListener onItemClick) { super(new DiffCallback()); }
+ * }
  */
 class ChannelGridAdapter(
     private val onItemClick: (MediaItem) -> Unit
@@ -35,11 +41,13 @@ class ChannelGridAdapter(
                 val item = getItem(bindingAdapterPosition)
                 onItemClick(item)
             }
-            // Make height equal width (square)
+            // "binding.root.post { ... }" → chạy sau khi View được vẽ xong và có kích thước.
+            // Java: binding.getRoot().post(() -> { ... });
+            // Mục đích: lấy width và gán height = width → item hình vuông
             binding.root.post {
                 val width = binding.root.width
                 val params = binding.root.layoutParams
-                params.height = width
+                params.height = width // chiều cao = chiều rộng → hình vuông
                 binding.root.layoutParams = params
             }
         }
