@@ -19,6 +19,7 @@ import com.example.demoottmobile.presentation.common.UiState
 import com.example.demoottmobile.presentation.common.loading.GlobalLoading
 import com.example.demoottmobile.presentation.common.toast.GlobalToast
 import com.example.demoottmobile.presentation.home.adapter.CategoryAdapter
+import com.example.demoottmobile.presentation.home.adapter.DrawerMenuAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -59,7 +60,7 @@ import kotlinx.coroutines.launch
 //       private FragmentHomeBinding binding;
 //       private HomeViewModel viewModel;
 //       private CategoryAdapter mainCategoryAdapter;
-//       private CategoryAdapter drawerCategoryAdapter;
+//       private DrawerMenuAdapter drawerMenuAdapter;
 //
 //       @Override
 //       public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,18 +108,11 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private val drawerCategoryAdapter by lazy {
-        CategoryAdapter(
-            onTitleClick = { category ->
-                // Lambda body: đóng drawer rồi navigate
-                binding.drawerLayout.closeDrawer(GravityCompat.START)
-                navigateToListing(category)
-            },
-            onItemClick = { item ->
-                binding.drawerLayout.closeDrawer(GravityCompat.START)
-                navigateToPlayer(item)
-            }
-        )
+    private val drawerMenuAdapter by lazy {
+        DrawerMenuAdapter { category ->
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            navigateToListing(category)
+        }
     }
 
     // "override fun onCreateView": @Override public View onCreateView(...) trong Java
@@ -147,7 +141,7 @@ class HomeFragment : Fragment() {
             setHasFixedSize(false)
         }
         binding.rvDrawerCategories.apply {
-            adapter = drawerCategoryAdapter
+            adapter = drawerMenuAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(false)
         }
@@ -183,7 +177,7 @@ class HomeFragment : Fragment() {
                             activity?.let { GlobalLoading.hide(it) }
                             // "state.data" → lấy data từ UiState.Success
                             mainCategoryAdapter.submitList(state.data)
-                            drawerCategoryAdapter.submitList(state.data)
+                            drawerMenuAdapter.submitList(state.data)
                         }
                         is UiState.Error -> {
                             activity?.let { GlobalLoading.hide(it) }

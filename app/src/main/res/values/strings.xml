@@ -10,6 +10,7 @@
     <string name="back">Back</string>
     <string name="menu">Menu</string>
     <string name="drawer_title">Browse</string>
+    <string name="drawer_subtitle">Watch Anywhere, Anytime</string>
     <string name="listing_grid_title">All Items</string>
     <string name="channel_title">Channels</string>
     <string name="error_generic">Something went wrong. Please try again.</string>
