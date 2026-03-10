@@ -13,6 +13,7 @@
 5. [MVVM - Model View ViewModel](#5-mvvm---model-view-viewmodel)
 6. [So sánh tổng hợp](#6-so-sánh-tổng-hợp)
 7. [Tại sao chọn MVVM?](#7-tại-sao-chọn-mvvm)
+8. [MVVM vs MVI — Phân tích chuyên sâu](#8-mvvm-vs-mvi--phân-tích-chuyên-sâu)
 
 ---
 
@@ -1138,6 +1139,303 @@ MVVM được chọn cho project OTT này vì:
 3. **Clean + đủ đơn giản** — Kết hợp với Clean Architecture (UseCase, Repository) mà không over-engineer
 4. **Team productivity** — Mỗi người làm 1 layer, ít conflict merge
 5. **Dễ mở rộng** — Từ mock data → real API chỉ cần thay RepositoryImpl, không đụng vào ViewModel hay Fragment
+
+---
+
+---
+
+## 8. MVVM vs MVI — Phân tích chuyên sâu
+
+> MVVM và MVI có nhiều điểm tương đồng đến mức dễ nhầm lẫn. Phần này phân tích rõ **điểm giống**, **điểm khác** và khi nào nên chọn cái nào — dựa trên codebase thực tế của project.
+
+---
+
+### 8.1. Điểm GIỐNG nhau
+
+| Khía cạnh | MVVM | MVI |
+|---|---|---|
+| **Tách biệt UI & logic** | ViewModel tách logic khỏi View | Intent/Model tách logic khỏi View |
+| **Luồng data phản ứng** | StateFlow / LiveData | StateFlow / Observable |
+| **Không thao tác UI trực tiếp** | ViewModel không giữ reference View | ViewModel/Store không giữ reference View |
+| **Quan sát state** | Fragment observe StateFlow | Fragment observe StateFlow |
+| **Kết hợp Clean Architecture** | Dùng UseCase | Dùng UseCase |
+| **Testability** | ViewModel test độc lập | ViewModel/Store test độc lập |
+
+Cả hai đều **không phải kiến trúc hoàn chỉnh** — chúng chỉ định nghĩa cách giao tiếp UI ↔ ViewModel, còn tầng Data/Domain vẫn dùng Repository + UseCase như nhau.
+
+---
+
+### 8.2. Điểm KHÁC nhau — Cốt lõi
+
+#### Hướng luồng dữ liệu
+
+```
+MVVM — gần như một chiều nhưng View có thể gọi hàm tự do:
+
+  View ──► ViewModel  (gọi hàm bất kỳ: loadData(), refresh(), onItemClick()...)
+  View ◄── ViewModel  (observe StateFlow)
+
+  ⚠ Vấn đề: View có thể gọi nhiều hàm theo thứ tự bất kỳ
+    → Khó đoán trạng thái hiện tại (ít predictable hơn)
+
+──────────────────────────────────────────────────────
+
+MVI — một chiều nghiêm ngặt (strict unidirectional):
+
+  View ──► Intent ──► ViewModel (Reducer) ──► State ──► View
+      └────────────────────────────────────────────────────┘
+                      (vòng lặp khép kín)
+
+  ✅ View CHỈ gửi Intent, KHÔNG gọi hàm trực tiếp
+    → Trạng thái luôn đoán được (fully predictable)
+```
+
+---
+
+#### So sánh cách View "ra lệnh" cho ViewModel
+
+```kotlin
+// ── MVVM (project hiện tại) ──────────────────────────────────
+// View gọi hàm trực tiếp, tên hàm tự do → linh hoạt nhưng phân tán
+
+viewModel.loadChannels()          // Fragment gọi khi vào màn hình
+viewModel.onItemClicked(item)     // Fragment gọi khi user bấm item
+viewModel.refresh()               // Fragment gọi khi pull-to-refresh
+viewModel.clearError()            // Fragment gọi khi dismiss error
+
+// Có thể gọi theo thứ tự bất kỳ → dễ gây bug nếu team lớn
+
+
+// ── MVI ──────────────────────────────────────────────────────
+// View chỉ gửi 1 loại message: Intent (sealed class)
+// Tất cả hành động được liệt kê tường minh → dễ audit
+
+sealed class ChannelIntent {
+    object LoadChannels              : ChannelIntent()
+    data class ItemClicked(
+        val item: MediaItem
+    )                                : ChannelIntent()
+    object Refresh                   : ChannelIntent()
+    object ClearError                : ChannelIntent()
+}
+
+// Fragment:
+viewModel.handleIntent(ChannelIntent.LoadChannels)
+viewModel.handleIntent(ChannelIntent.ItemClicked(item))
+// → 1 entry point duy nhất, biết ngay mọi thứ View có thể làm
+```
+
+---
+
+#### So sánh State Management
+
+```kotlin
+// ── MVVM (project hiện tại) ──────────────────────────────────
+// Nhiều StateFlow riêng lẻ, mỗi cái quản lý 1 phần
+
+class ChannelViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow<UiState<List<MediaItem>>>(UiState.Loading)
+    val uiState = _uiState.asStateFlow()
+
+    // Nếu cần thêm field → thêm StateFlow mới
+    private val _isRefreshing = MutableStateFlow(false)
+    private val _selectedFilter = MutableStateFlow("All")
+}
+// ⚠ Nguy cơ: 3 state riêng → có thể không đồng bộ với nhau
+//   (vd: isRefreshing = true nhưng uiState đã Success)
+
+
+// ── MVI ──────────────────────────────────────────────────────
+// 1 State object duy nhất — gộp tất cả vào trong
+
+data class ChannelState(
+    val isLoading: Boolean          = false,
+    val channels: List<MediaItem>   = emptyList(),
+    val error: String?              = null,
+    val isRefreshing: Boolean       = false,
+    val selectedFilter: String      = "All"
+)
+
+class ChannelViewModel : ViewModel() {
+    private val _state = MutableStateFlow(ChannelState())
+    val state = _state.asStateFlow()
+
+    fun handleIntent(intent: ChannelIntent) {
+        when (intent) {
+            is ChannelIntent.LoadChannels ->
+                _state.update { it.copy(isLoading = true, error = null) }
+            is ChannelIntent.ItemClicked  -> { /* navigate */ }
+            is ChannelIntent.Refresh      ->
+                _state.update { it.copy(isRefreshing = true) }
+            is ChannelIntent.ClearError   ->
+                _state.update { it.copy(error = null) }
+        }
+    }
+}
+// ✅ Luôn nhất quán: không thể xảy ra trạng thái mâu thuẫn
+// ✅ Dễ debug: chỉ cần in _state.value là thấy toàn bộ màn hình
+```
+
+---
+
+#### So sánh xử lý Side Effects
+
+Side effect = hành động một lần không thuộc về State (navigate, show toast, play sound...).
+
+```kotlin
+// ── MVVM — không có quy ước thống nhất ───────────────────────
+// Mỗi developer có cách xử lý riêng:
+
+// Cách 1: SharedFlow
+private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+val navigationEvent = _navigationEvent.asSharedFlow()
+
+// Cách 2: Gọi trực tiếp từ Fragment
+private var pendingNavigation: MediaItem? = null
+
+// Cách 3: Channel
+private val _events = Channel<UiEvent>()
+
+// → Không nhất quán, khó onboard người mới
+
+
+// ── MVI — Effect được định nghĩa rõ ràng ─────────────────────
+sealed class ChannelEffect {
+    data class NavigateToPlayer(val url: String) : ChannelEffect()
+    data class ShowToast(val message: String)    : ChannelEffect()
+    object HideKeyboard                          : ChannelEffect()
+}
+
+// ViewModel emit effect riêng biệt:
+private val _effect = Channel<ChannelEffect>(Channel.BUFFERED)
+val effect = _effect.receiveAsFlow()
+
+// Fragment:
+viewLifecycleOwner.lifecycleScope.launch {
+    viewModel.effect.collect { effect ->
+        when (effect) {
+            is ChannelEffect.NavigateToPlayer -> navigateTo(effect.url)
+            is ChannelEffect.ShowToast        -> Toast.show(effect.message)
+            is ChannelEffect.HideKeyboard     -> hideKeyboard()
+        }
+    }
+}
+// → State stream (liên tục) tách biệt với Effect stream (một lần)
+```
+
+---
+
+### 8.3. Sơ đồ so sánh tổng thể
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                          MVVM                               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌──────────┐  gọi hàm bất kỳ  ┌─────────────────────┐   │
+│   │          │ ────────────────► │                     │   │
+│   │ Fragment │                   │     ViewModel       │   │
+│   │          │ ◄──────────────── │  (nhiều StateFlow)  │   │
+│   └──────────┘  observe từng     └──────────┬──────────┘   │
+│                 StateFlow riêng             │               │
+│                                         UseCase            │
+│                                             │               │
+│                                        Repository          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                           MVI                               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌──────────┐    Intent        ┌─────────────────────┐    │
+│   │          │ ────────────────► │                     │    │
+│   │ Fragment │                  │  ViewModel/Reducer  │    │
+│   │          │ ◄──────────────── │   (1 State object)  │    │
+│   └────┬─────┘  observe 1 State └──────────┬──────────┘    │
+│        │        + Effect stream            │                │
+│        │                               UseCase             │
+│        └──── Effect (navigate, toast) ──────┘              │
+│                                        Repository          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 8.4. Chuyển đổi project từ MVVM sang MVI
+
+Project hiện tại đã có **nền tảng tốt** (sealed class `UiState`, `StateFlow`). Để chuyển sang MVI thuần, cần 3 bước:
+
+**Bước 1 — Tạo sealed class Intent cho mỗi màn hình:**
+```kotlin
+// Tạo file mới: ChannelIntent.kt
+sealed class ChannelIntent {
+    object LoadChannels              : ChannelIntent()
+    data class ItemClicked(val item: MediaItem) : ChannelIntent()
+}
+```
+
+**Bước 2 — Gộp state thành 1 data class:**
+```kotlin
+// Thay vì nhiều StateFlow → 1 State
+data class ChannelState(
+    val isLoading: Boolean        = false,
+    val channels: List<MediaItem> = emptyList(),
+    val error: String?            = null
+)
+```
+
+**Bước 3 — ViewModel xử lý Intent qua 1 entry point:**
+```kotlin
+fun handleIntent(intent: ChannelIntent) {
+    viewModelScope.launch {
+        when (intent) {
+            ChannelIntent.LoadChannels -> loadChannels()
+            is ChannelIntent.ItemClicked -> openPlayer(intent.item)
+        }
+    }
+}
+```
+
+**Fragment gửi Intent thay vì gọi hàm:**
+```kotlin
+// Trước (MVVM):
+viewModel.loadChannels()
+
+// Sau (MVI):
+viewModel.handleIntent(ChannelIntent.LoadChannels)
+```
+
+---
+
+### 8.5. Khi nào nên dùng cái nào?
+
+| Tình huống | Nên dùng | Lý do |
+|---|---|---|
+| App nhỏ, 1-3 developer | **MVVM** | Ít boilerplate, nhanh |
+| Deadline gọn, prototype | **MVVM** | Linh hoạt, dễ thay đổi |
+| State màn hình phức tạp (5+ fields) | **MVI** | 1 State object rõ ràng hơn |
+| Nhiều developer cùng làm 1 màn hình | **MVI** | Quy ước thống nhất |
+| Cần debug / replay lại state | **MVI** | In `state.value` là xong |
+| Quen với React/Redux/Flux | **MVI** | Tư duy hoàn toàn giống nhau |
+| App lớn, cần audit tất cả hành động | **MVI** | sealed class Intent = tài liệu sống |
+
+---
+
+### 8.6. Tóm tắt
+
+```
+                MVVM                        MVI
+           ─────────────────          ─────────────────
+  View    │ Gọi hàm tự do   │        │ Gửi Intent      │
+  State   │ Nhiều StateFlow  │        │ 1 State object  │
+  Effect  │ Không quy ước   │        │ Effect stream   │
+  Debug   │ Khó hơn         │        │ Dễ hơn          │
+  Code    │ Ít hơn          │        │ Nhiều hơn       │
+  Phù hợp│ Project nhỏ-vừa│        │ Project lớn     │
+           ─────────────────          ─────────────────
+```
+
+> **Kết luận**: Project OTT này dùng **MVVM**, nhưng đã có tư duy gần MVI (`sealed class UiState`, `StateFlow`). Hai kiến trúc không đối lập — MVI giống như **MVVM có kỷ luật hơn**: thêm quy ước về Intent và gộp State, phần còn lại hoàn toàn giống nhau.
 
 ---
 
