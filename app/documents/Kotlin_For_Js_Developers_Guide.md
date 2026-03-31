@@ -43,16 +43,18 @@ Kotlin chạy trên **JVM (Java Virtual Machine)** - bạn có thể hình dung 
 
 Bạn sẽ thấy nhiều điểm quen thuộc:
 
-| Khái niệm | JavaScript / TypeScript | Kotlin |
-| --- | --- | --- |
-| String template | `` `Hello ${name}` `` | `"Hello $name"` |
-| Arrow function | `(x) => x * 2` | `{ x -> x * 2 }` |
-| Array methods | `.map()`, `.filter()` | `.map {}`, `.filter {}` |
-| async/await | `async function`, `await` | `suspend fun`, `coroutines` |
-| Type annotation | `name: string` (TypeScript) | `name: String` |
-| Destructuring | `const { id, name } = user` | `val (id, name) = user` |
-| Optional chaining | `user?.address?.city` | `user?.address?.city` |
-| Nullish coalescing | `value ?? "default"` | `value ?: "default"` |
+
+| Khái niệm          | JavaScript / TypeScript     | Kotlin                      |
+| ------------------ | --------------------------- | --------------------------- |
+| String template    | ``Hello ${name}``           | `"Hello $name"`             |
+| Arrow function     | `(x) => x * 2`              | `{ x -> x * 2 }`            |
+| Array methods      | `.map()`, `.filter()`       | `.map {}`, `.filter {}`     |
+| async/await        | `async function`, `await`   | `suspend fun`, `coroutines` |
+| Type annotation    | `name: string` (TypeScript) | `name: String`              |
+| Destructuring      | `const { id, name } = user` | `val (id, name) = user`     |
+| Optional chaining  | `user?.address?.city`       | `user?.address?.city`       |
+| Nullish coalescing | `value ?? "default"`        | `value ?: "default"`        |
+
 
 ---
 
@@ -160,16 +162,18 @@ val greeting = "Xin chào $name"
 
 ### 3.5 Kiểu dữ liệu cơ bản
 
-| Kotlin | JavaScript | Mô tả |
-| --- | --- | --- |
-| `String` | `string` | Chuỗi ký tự |
-| `Int` | `number` | Số nguyên |
-| `Long` | `number` (BigInt) | Số nguyên lớn |
-| `Double` | `number` | Số thực |
-| `Boolean` | `boolean` | true/false |
-| `List<T>` | `Array` | Danh sách |
-| `Map<K, V>` | `Object` / `Map` | Từ điển key-value |
-| `Unit` | `void` / `undefined` | Hàm không trả về giá trị |
+
+| Kotlin      | JavaScript           | Mô tả                    |
+| ----------- | -------------------- | ------------------------ |
+| `String`    | `string`             | Chuỗi ký tự              |
+| `Int`       | `number`             | Số nguyên                |
+| `Long`      | `number` (BigInt)    | Số nguyên lớn            |
+| `Double`    | `number`             | Số thực                  |
+| `Boolean`   | `boolean`            | true/false               |
+| `List<T>`   | `Array`              | Danh sách                |
+| `Map<K, V>` | `Object` / `Map`     | Từ điển key-value        |
+| `Unit`      | `void` / `undefined` | Hàm không trả về giá trị |
+
 
 ---
 
@@ -180,7 +184,7 @@ val greeting = "Xin chào $name"
 ```kotlin
 fun greet(name: String): String {
     return "Hello $name"
-}
+} 
 
 // Gọi hàm
 val result = greet("Mai")
@@ -237,7 +241,7 @@ greet()         // Hello bạn
 greet("Mai")    // Hello Mai
 ```
 
-### 4.4 Named argument - gọi hàm với tên tham số
+###  
 
 Tính năng độc đáo này giúp code dễ đọc hơn:
 
@@ -789,7 +793,7 @@ names.filter { it.length > 2 }
 
 Đây là những hàm đặc biệt giúp viết code rõ ràng hơn.
 
-**`let`** - thực thi block nếu không null, kết quả là giá trị cuối của block:
+`**let**` - thực thi block nếu không null, kết quả là giá trị cuối của block:
 
 ```kotlin
 val email: String? = getUserEmail()
@@ -798,7 +802,7 @@ val result = email?.let {
 }
 ```
 
-**`apply`** - cấu hình object, trả về chính object đó:
+`**apply**` - cấu hình object, trả về chính object đó:
 
 ```kotlin
 val user = User(id = "u1", name = "Mai", email = null).apply {
@@ -807,7 +811,7 @@ val user = User(id = "u1", name = "Mai", email = null).apply {
 }
 ```
 
-**`also`** - thực thi thêm một hành động, trả về chính object:
+`**also**` - thực thi thêm một hành động, trả về chính object:
 
 ```kotlin
 val list = mutableListOf(1, 2, 3)
@@ -1432,23 +1436,25 @@ Kotlin không chỉ là học ngôn ngữ mới - đây là cơ hội thay đổ
 
 ### A - Bảng so sánh cú pháp
 
-| Chủ đề | JavaScript | Kotlin |
-| --- | --- | --- |
-| Biến không đổi | `const name = "Mai"` | `val name = "Mai"` |
-| Biến thay đổi | `let count = 0` | `var count = 0` |
-| String template | `` `Hello ${name}` `` | `"Hello $name"` |
-| Arrow function | `(x) => x * 2` | `{ x -> x * 2 }` |
-| Optional chaining | `user?.address?.city` | `user?.address?.city` |
-| Nullish coalescing | `value ?? "default"` | `value ?: "default"` |
-| Array filter | `arr.filter(x => ...)` | `list.filter { ... }` |
-| Array map | `arr.map(x => ...)` | `list.map { ... }` |
-| Array find | `arr.find(x => ...)` | `list.find { ... }` |
-| Async/await | `async function f() { await ... }` | `suspend fun f() { ... }` |
-| Promise.all | `Promise.all([p1, p2])` | `async { }.await()` x2 |
-| Switch/case | `switch (x) { case "a": ... }` | `when (x) { "a" -> ... }` |
-| Spread object | `{ ...obj, key: val }` | `obj.copy(key = val)` |
-| typeof check | `typeof x === "string"` | `x is String` |
-| Destructuring | `const { name, age } = user` | `val (name, age) = user` |
+
+| Chủ đề             | JavaScript                         | Kotlin                    |
+| ------------------ | ---------------------------------- | ------------------------- |
+| Biến không đổi     | `const name = "Mai"`               | `val name = "Mai"`        |
+| Biến thay đổi      | `let count = 0`                    | `var count = 0`           |
+| String template    | ``Hello ${name}``                  | `"Hello $name"`           |
+| Arrow function     | `(x) => x * 2`                     | `{ x -> x * 2 }`          |
+| Optional chaining  | `user?.address?.city`              | `user?.address?.city`     |
+| Nullish coalescing | `value ?? "default"`               | `value ?: "default"`      |
+| Array filter       | `arr.filter(x => ...)`             | `list.filter { ... }`     |
+| Array map          | `arr.map(x => ...)`                | `list.map { ... }`        |
+| Array find         | `arr.find(x => ...)`               | `list.find { ... }`       |
+| Async/await        | `async function f() { await ... }` | `suspend fun f() { ... }` |
+| Promise.all        | `Promise.all([p1, p2])`            | `async { }.await()` x2    |
+| Switch/case        | `switch (x) { case "a": ... }`     | `when (x) { "a" -> ... }` |
+| Spread object      | `{ ...obj, key: val }`             | `obj.copy(key = val)`     |
+| typeof check       | `typeof x === "string"`            | `x is String`             |
+| Destructuring      | `const { name, age } = user`       | `val (name, age) = user`  |
+
 
 ### B - Bài tập thực hành theo cấp độ
 
@@ -1476,3 +1482,4 @@ Kotlin không chỉ là học ngôn ngữ mới - đây là cơ hội thay đổ
 1. Gọi API `https://reqres.in/api/users` và hiển thị danh sách.
 2. Thêm tính năng tìm kiếm theo tên (debounce 300ms).
 3. Cache kết quả vào local storage, hiển thị cache khi offline.
+
