@@ -46,7 +46,7 @@ Bạn sẽ thấy nhiều điểm quen thuộc:
 
 | Khái niệm          | JavaScript / TypeScript     | Kotlin                      |
 | ------------------ | --------------------------- | --------------------------- |
-| String template    | ``Hello ${name}``           | `"Hello $name"`             |
+| String template    | `Hello ${name}`             | `"Hello $name"`             |
 | Arrow function     | `(x) => x * 2`              | `{ x -> x * 2 }`            |
 | Array methods      | `.map()`, `.filter()`       | `.map {}`, `.filter {}`     |
 | async/await        | `async function`, `await`   | `suspend fun`, `coroutines` |
@@ -241,7 +241,7 @@ greet()         // Hello bạn
 greet("Mai")    // Hello Mai
 ```
 
-###  
+
 
 Tính năng độc đáo này giúp code dễ đọc hơn:
 
@@ -952,7 +952,7 @@ sealed class UiState<out T> {
 
 `sealed class` = class "đóng kín" - chỉ có các subclass được khai báo trong cùng file. Compiler biết **đầy đủ** tất cả các trường hợp có thể xảy ra.
 
-### 11.3 `when` exhaustive - compiler kiểm tra đủ case
+### 11.3 `when`  - compiler kiểm tra đủ case
 
 ```kotlin
 fun render(state: UiState<User>) {
@@ -1073,7 +1073,7 @@ fun printString(value: String) = println(value)
 fun printInt(value: Int) = println(value)
 
 // Dùng generics - một hàm dùng cho mọi kiểu
-fun <T> printValue(value: T) = println(value)
+ 
 
 printValue("Hello")  // T = String
 printValue(42)       // T = Int
@@ -1230,93 +1230,9 @@ UI (Compose/View)
 
 ---
 
-## 15. Lộ trình học 6 tuần
+## 15. Best practices và lỗi thường gặp
 
-### Tuần 1 - Nền tảng ngôn ngữ
-
-**Mục tiêu**: đọc và viết code Kotlin cơ bản.
-
-- `val`, `var`, kiểu dữ liệu, String template.
-- Hàm, tham số mặc định, named argument.
-- `if/when`, vòng lặp `for`.
-
-**Bài tập**:
-
-- Viết hàm tính BMI, nhận cân nặng và chiều cao.
-- Viết hàm phân loại điểm học sinh bằng `when`.
-- In bảng cửu chương bằng nested `for`.
-
-### Tuần 2 - Null Safety
-
-**Mục tiêu**: hiểu và xử lý null an toàn.
-
-- Phân biệt `String` và `String?`.
-- `?.`, `?:`, `!!`, `let`.
-- Thực hành với dữ liệu từ API (nhiều field nullable).
-
-**Bài tập**:
-
-- Viết hàm format địa chỉ từ struct `Address?` (street, city, country đều nullable).
-- Viết hàm lấy avatar URL, fallback về ảnh mặc định nếu null.
-
-### Tuần 3 - Class và OOP
-
-**Mục tiêu**: thiết kế model dữ liệu.
-
-- `class`, `data class`, `copy()`.
-- `interface`, kế thừa.
-- `object`, `companion object`.
-
-**Bài tập**:
-
-- Tạo hệ thống model cho app quản lý sản phẩm: `Product`, `Category`, `Cart`, `Order`.
-- Thêm các hàm tính toán (tổng giá, số lượng).
-
-### Tuần 4 - Collections và Lambda
-
-**Mục tiêu**: xử lý danh sách dữ liệu thành thạo.
-
-- `listOf`, `mapOf`, `mutableListOf`.
-- `filter`, `map`, `find`, `groupBy`, `sortedBy`.
-- Lambda, `it`, scope functions.
-
-**Bài tập**:
-
-- Cho danh sách 20 sản phẩm: lọc theo danh mục, sắp xếp theo giá, nhóm theo tình trạng hàng.
-- Tính tổng giá trị giỏ hàng, tìm sản phẩm rẻ nhất/đắt nhất.
-
-### Tuần 5 - Sealed class và Coroutines
-
-**Mục tiêu**: xử lý state và async chuyên nghiệp.
-
-- Sealed class cho UI state.
-- `suspend fun`, `launch`, `async/await`.
-- `withContext`, `runCatching`.
-
-**Bài tập**:
-
-- Mô phỏng gọi API (dùng `delay()`) và hiển thị 3 state: Loading/Success/Error.
-- Gọi 2 API song song, kết hợp kết quả.
-
-### Tuần 6 - Android thực chiến
-
-**Mục tiêu**: xây dựng màn hình Android hoàn chỉnh.
-
-- MVVM pattern với ViewModel + StateFlow.
-- Retrofit để gọi API thực.
-- Coroutines trong Android lifecycle.
-
-**Bài tập**:
-
-- Xây dựng màn hình danh sách người dùng từ `https://reqres.in/api/users`.
-- Xây dựng màn hình chi tiết người dùng.
-- Xử lý đầy đủ 3 state: loading spinner, hiển thị dữ liệu, thông báo lỗi.
-
----
-
-## 16. Best practices và lỗi thường gặp
-
-### 16.1 Best practices
+### 15.1 Best practices
 
 **Ưu tiên immutable:**
 
@@ -1360,7 +1276,7 @@ val city = user.address!!.city!!
 val city = user.address?.city ?: "Chưa có địa chỉ"
 ```
 
-### 16.2 Lỗi thường gặp khi mới học Kotlin
+### 15.2 Lỗi thường gặp khi mới học Kotlin
 
 **Nhầm `val` và `var`:**
 
@@ -1411,7 +1327,7 @@ lifecycleScope.launch { ... }
 
 ---
 
-## 17. Tổng kết
+## 16. Tổng kết
 
 Kotlin được thiết kế để viết ứng dụng **an toàn hơn, ngắn gọn hơn và dễ đọc hơn**.
 
@@ -1432,7 +1348,7 @@ Kotlin không chỉ là học ngôn ngữ mới - đây là cơ hội thay đổ
 
 ---
 
-## 18. Phụ lục: So sánh nhanh JS vs Kotlin
+## 17. Phụ lục: So sánh nhanh JS vs Kotlin
 
 ### A - Bảng so sánh cú pháp
 
@@ -1441,7 +1357,7 @@ Kotlin không chỉ là học ngôn ngữ mới - đây là cơ hội thay đổ
 | ------------------ | ---------------------------------- | ------------------------- |
 | Biến không đổi     | `const name = "Mai"`               | `val name = "Mai"`        |
 | Biến thay đổi      | `let count = 0`                    | `var count = 0`           |
-| String template    | ``Hello ${name}``                  | `"Hello $name"`           |
+| String template    | `Hello ${name}`                    | `"Hello $name"`           |
 | Arrow function     | `(x) => x * 2`                     | `{ x -> x * 2 }`          |
 | Optional chaining  | `user?.address?.city`              | `user?.address?.city`     |
 | Nullish coalescing | `value ?? "default"`               | `value ?: "default"`      |
